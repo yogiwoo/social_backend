@@ -1,2 +1,3 @@
 class Config:
-     SECRET_KEY = 'your_secret_key'
+     SECRET_KEY = 'jsdiedjijdinn93n8*738(@)0'
+     

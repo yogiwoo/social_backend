@@ -8,4 +8,6 @@ def get_all_items():
     return list(collection.find({},{'_id':False}))
 
 def add_item(text):
-    collection.insert_one({'text': text})
+    data=collection.insert_one({'text': text})
+    # if (data):
+    #     return true

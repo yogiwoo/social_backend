@@ -3,7 +3,7 @@ from pymongo import MongoClient
 from bson.json_util import dumps
 from bson.objectid import objectId
 app = Flask(__name__)
-
+#nolonger maintainer or USABLE
 # MongoDB setup
 client = MongoClient("mongodb://localhost:27017/")
 db = client["course-goals"]
