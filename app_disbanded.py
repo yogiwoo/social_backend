@@ -6,7 +6,7 @@ app = Flask(__name__)
 #nolonger maintainer or USABLE
 # MongoDB setup
 client = MongoClient("mongodb://localhost:27017/")
-db = client["course-goals"]
+db = client["social"]
 collection = db.goals
 
 
