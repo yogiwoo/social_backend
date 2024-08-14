@@ -8,7 +8,7 @@ from app.utils.helper import parse_json,serialize_doc
 auth_bp=Blueprint('auth',__name__)
 from config import Config
 from flask_jwt_extended import create_access_token
-from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import get_jwt_identity,get_jwt
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import JWTManager
 from app.utils.helper import parse_json
@@ -42,28 +42,31 @@ def signup():
 
 @auth_bp.route('/login',methods=["POST"])
 def login():
-    data=request.get_json()
-    userdata=find_user(data.get('mobile'))
-    if userdata:
-        fullname=userdata.get('fullname')
-        password=userdata.get('pwd')
-        if check_password_hash(password,data.get('pwd')):
-            token=create_access_token(identity=fullname)
-            serialize_userdata=serialize_doc(userdata)
-            return jsonify({'token':token,'userdata':serialize_doc}),200
-    #final=parse_json(userdata)
-    # serialized_userdata = dumps(userdata)
-    # print("------------------------------------------------------------------------->",serialized_userdata)
-    # if serialized_userdata:
-    #     fullname=userdata.get('fullname')
-    #     password=userdata.get('pwd')
-    #     email=userdata.get('email')
-    #     mobile=userdata.get('mobile')
-    #     id=userdata.get('_id')
-    #     if check_password_hash(password,data.get('pwd')):
-            
-    #         access_token = create_access_token(identity=fullname,additional_claims=additional_claims)
-    #         return jsonify({'access_token': access_token,'user_data': serialized_userdata}), 200
+    try:
+        data=request.get_json()
+        userdata=find_user(data.get('mobile'))
+        if userdata:
+            fullname=userdata.get('fullname')
+            password=userdata.get('pwd')
+            if check_password_hash(password,data.get('pwd')):
+                serialize_userdata=serialize_doc(userdata)
+                print(serialize_userdata)
+                token=create_access_token(identity=fullname, additional_claims={
+                "id": serialize_userdata.get('_id'),
+                "mobile": serialize_userdata.get('mob')
+            })   
+        return jsonify({'token':token,'userdata':serialize_userdata}),200
+    except BadRequest as e:
+        return jsonify({'error':str(e)}),400
+
+@auth_bp.route('/searchuser',methods=["GET"])
+@jwt_required()
+def searchUser():
+        curr_user=get_jwt_identity()
+        claims = get_jwt() 
+        print('current user---------->',claims)
+        return jsonify({'current_user': curr_user}), 200
+
 
 
 
