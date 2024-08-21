@@ -1,0 +1,7 @@
+adding friend will insert the object into the pending doc
+after accepting the request
+    1.seach the user with the userid\
+    2.create a dictionary with img userid name and addedt at the current date
+    3.push the object into friend list of that user
+    
+NOTE: if incoming FALSE the you have sent the friend request while if the incoming true the they added you

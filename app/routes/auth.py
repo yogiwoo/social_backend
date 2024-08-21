@@ -2,6 +2,7 @@ from flask import Blueprint,request,jsonify
 from app.utils.mongo import collection
 from app.models.auth import insert_user,find_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.exceptions import BadRequest
 import json
 from datetime import datetime
 from app.utils.helper import parse_json,serialize_doc
@@ -15,6 +16,7 @@ from app.utils.helper import parse_json
 from bson.json_util import dumps,loads
 from bson import ObjectId
 from flask_pymongo import PyMongo
+from datetime import timedelta
 @auth_bp.route('/signup',methods=['POST'])
 def signup():
     data=request.get_json()
@@ -49,9 +51,10 @@ def login():
             fullname=userdata.get('fullname')
             password=userdata.get('pwd')
             if check_password_hash(password,data.get('pwd')):
+                print("---------------------------------------------------->")
                 serialize_userdata=serialize_doc(userdata)
                 print(serialize_userdata)
-                token=create_access_token(identity=fullname, additional_claims={
+                token=create_access_token(identity=fullname,expires_delta=timedelta(hours=4), additional_claims={
                 "id": serialize_userdata.get('_id'),
                 "mobile": serialize_userdata.get('mob')
             })   
@@ -62,10 +65,13 @@ def login():
 @auth_bp.route('/searchuser',methods=["GET"])
 @jwt_required()
 def searchUser():
-        curr_user=get_jwt_identity()
-        claims = get_jwt() 
-        print('current user---------->',claims)
-        return jsonify({'current_user': curr_user}), 200
+        try:
+            curr_user=get_jwt_identity()
+            claims = get_jwt() 
+            print('current user---------->',claims["id"])
+            return jsonify({'current_user': curr_user,"id":claims["id"]}), 200
+        except :
+            return ("error")
 
 
 
