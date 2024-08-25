@@ -51,9 +51,8 @@ def login():
             fullname=userdata.get('fullname')
             password=userdata.get('pwd')
             if check_password_hash(password,data.get('pwd')):
-                print("---------------------------------------------------->")
                 serialize_userdata=serialize_doc(userdata)
-                print(serialize_userdata)
+    
                 token=create_access_token(identity=fullname,expires_delta=timedelta(hours=4), additional_claims={
                 "id": serialize_userdata.get('_id'),
                 "mobile": serialize_userdata.get('mob')
@@ -68,7 +67,7 @@ def searchUser():
         try:
             curr_user=get_jwt_identity()
             claims = get_jwt() 
-            print('current user---------->',claims["id"])
+          
             return jsonify({'current_user': curr_user,"id":claims["id"]}), 200
         except :
             return ("error")

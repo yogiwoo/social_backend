@@ -6,3 +6,6 @@ def parse_json(data):
 def serialize_doc(doc):
     doc['_id']=str(doc['_id'])
     return doc
+
+def convertObjectid(id):
+    return str(id)

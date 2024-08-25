@@ -1,12 +1,12 @@
 from flask import Blueprint,jsonify,request
 from datetime import datetime
 from app.utils.mongo import collection
-from app.models.posts import insertPost,updateData,delete,hide
+from app.models.posts import insertPost,updateData,delete,hide,findPosts
 from app.models.friends import find_friends_list_data
 from flask_jwt_extended import get_jwt_identity,get_jwt,jwt_required
 post_bp=Blueprint('post',__name__)
 from bson import ObjectId
-
+from app.utils.helper import parse_json,serialize_doc,convertObjectid
 @post_bp.route('/createPost',methods=['POST'])
 @jwt_required()
 def createPost():
@@ -30,7 +30,6 @@ def createPost():
         return jsonify({"message":"Posted"}),200
     else:
         return jsonify({"message":"Post failed"}),500
-
 
 #update post
 @post_bp.route('/updatePost',methods=["PUT"])
@@ -59,9 +58,6 @@ def deletePost():
     else:
         return jsonify({"message":"Failed"}),200
 
-     
-
-
 @post_bp.route('/hidePost/<int:pid>',methods=["PUT"])
 @jwt_required()
 def hidePost(pid):
@@ -80,17 +76,8 @@ def fetch_post():
     friends=find_friends_list_data(userid)
     users=[]
     if(friends):
-        for i in friends:
-            for friend in i['friendList']:
-                users.append(friend['userId']['$oid'])
-    print("-------------------------------------------------------------->",users)
-    return users
-    
+        for i in friends["friendList"]:
+            users.append(convertObjectid(i["userId"])) #serialize_doc
 
-
-
-
-
-
-
-    
+    allposts=findPosts(users)        
+    return allposts

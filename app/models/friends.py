@@ -26,7 +26,7 @@ def update_friend_list_pending(data,userId):
 #====================================================friend list(collection 2)=====================================================================
 collection2=db.friends
 def find_friends_list_data(uid):
-    data2=collection2.find_one({"userId.$oid":uid})
+    data2=collection2.find_one({"userId":ObjectId(uid)})
     if data2:
         return data2
 
@@ -44,4 +44,4 @@ def update_friend_list_data(data,userId):
 def pop_pending_req(uuid,userId):
     remove=collection.update_one({"userId.$oid":uuid},{'$pull': {'pendingList': {'userId.$oid':userId}}})
     if remove:
-        return remove.acknowledged    
+        return remove.acknowledged
