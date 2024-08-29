@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 from app.utils.helper import parse_json
 from bson import ObjectId
+from app.utils.helper import parse_json,serialize_doc,convertObjectid
 client=MongoClient("mongodb://localhost:27017/")
 db = client["social"]
 collection = db.pending_friends
@@ -45,3 +46,27 @@ def pop_pending_req(uuid,userId):
     remove=collection.update_one({"userId.$oid":uuid},{'$pull': {'pendingList': {'userId.$oid':userId}}})
     if remove:
         return remove.acknowledged
+    
+def getFriendsList(userId):
+    # Ensure userId is converted to ObjectId if needed
+    try:
+        user_object_id = ObjectId(userId)
+        print(user_object_id)
+    except Exception as e:
+        return []  # Handle invalid ObjectId format or other errors
+
+    # Fetch the friends list
+    allFriends = collection2.find_one({'userId': user_object_id})
+    data=serialize_doc(allFriends)
+    print(data)
+    friends=[]
+    if data:
+        for i in data['friendList']:
+            x=convertObjectid(i['userId'])
+            y={
+                "userId":x,
+                "name":i['name'],
+                "image":i['image']
+            }
+            friends.append(y)
+    return friends

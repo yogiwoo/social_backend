@@ -35,7 +35,6 @@ def findPosts(user_ids):
         x = ObjectId(user_id)
         print(x)
         posts = collection.find({"userId": x}, {"userId": 1, "postDate": 1, "images": 1})
-        #print("--------------->",posts)
         allPosts.extend(list(posts))  # Add fetched posts to the list
         print(allPosts)
     return allPosts

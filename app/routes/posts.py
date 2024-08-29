@@ -1,5 +1,6 @@
 from flask import Blueprint,jsonify,request
 from datetime import datetime
+from pymongo import MongoClient
 from app.utils.mongo import collection
 from app.models.posts import insertPost,updateData,delete,hide,findPosts
 from app.models.friends import find_friends_list_data
@@ -7,6 +8,10 @@ from flask_jwt_extended import get_jwt_identity,get_jwt,jwt_required
 post_bp=Blueprint('post',__name__)
 from bson import ObjectId
 from app.utils.helper import parse_json,serialize_doc,convertObjectid
+client=MongoClient("mongodb://localhost:27017/")
+db = client["social"]
+collection = db.posts
+interaction_coll=db.interactions
 @post_bp.route('/createPost',methods=['POST'])
 @jwt_required()
 def createPost():
@@ -43,9 +48,6 @@ def updatePost():
          return jsonify({"message":"Posted update"}),200
      else:
          return jsonify({"message":"error"}),200
-        
-     
-
 
 #delete post
 @post_bp.route('/deletePost',methods=["DELETE"])
@@ -74,10 +76,30 @@ def fetch_post():
     claims=get_jwt()
     userid=claims["id"]
     friends=find_friends_list_data(userid)
-    users=[]
+    allposts=[]
     if(friends):
         for i in friends["friendList"]:
-            users.append(convertObjectid(i["userId"])) #serialize_doc
-
-    allposts=findPosts(users)        
+            uid=convertObjectid(i["userId"])
+            post=collection.find({"userId.$oid":uid})
+           
+            for i in post:
+                print("0000000000000000000000",i)
+                searial=serialize_doc(i)
+                allposts.append(searial)
     return allposts
+
+@post_bp.route("/upvotePost/<int:pid>",methods=["PUT"])
+@jwt_required()
+def upvote():
+    claims=get_jwt(pid)
+    userid=claims["id"]
+    #update upvotecounter 
+    #insert userid in the interactions collection for the post
+    pid=request.args.get["pid"]
+    updateUpvotes=collection.update_one({"_id"},{"$inc":{"upvotes":1}})
+    if updateUpvotes:
+        object={
+            "userId":ObjectId(userid),
+            "upvotedBy":""
+        }
+        insertInteraction=interaction_coll.insert_one()
