@@ -22,7 +22,7 @@ def handle_connect():
 
 @chat_bp.route('/send', methods=['POST'])
 def send_message():
-    data = request.json
+    data = request.get_json()
     message = data.get('message')
     if message:
         socketio.emit('message', {'message': message})
