@@ -1,10 +1,10 @@
 from flask import Flask
-from flask_socketio import SocketIO
+from .socket import socketio
 from .routes.example import example_bp
 from .routes.auth import auth_bp
 from .routes.posts import post_bp
 from .routes.friends import friend_bp
-from .routes.chat import chat_bp
+from .routes.talk import chat_bp
 from config import Config
 from flask_jwt_extended import JWTManager
 def create_app():
@@ -12,7 +12,7 @@ def create_app():
     app.config['SECRET_KEY']=Config.SECRET_KEY
     app.config["JWT_SECRET_KEY"] = Config.JWT_SECRET_KEY
     jwt = JWTManager(app)
-    socketio=SocketIO(app)
+    socketio.init_app(app)
     app.register_blueprint(example_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(post_bp)
@@ -20,4 +20,4 @@ def create_app():
     app.register_blueprint(chat_bp)
     #  Change this!
     
-    return app,socketio
+    return app
